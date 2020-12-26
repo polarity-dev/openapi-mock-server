@@ -1,0 +1,65 @@
+{
+  "name": "open-api-mock-server",
+  "version": "1.0.0",
+  "description": "OpenAPI Mock Server",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": "dist/index.js",
+  "scripts": {
+    "dev": "DEBUG=mock* ts-node --project tsconfig.json src/index.ts",
+    "init:types": "json2ts -i \"src/schemas/*.json\" -o src/types/ --no-style.semi",
+    "eslint": "eslint 'src/**/*.{ts,tsx}' --ignore-pattern src/types; exit 0",
+    "eslint:fix": "eslint '**/*.{ts,tsx}' --fix --ignore-pattern src/types; exit 0",
+    "rollup": "rollup -c",
+    "build": "rm -rf dist && npm run rollup",
+    "start": "DEBUG=mock* node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soluzionifutura/open-api-mock-server.git"
+  },
+  "author": "Soluzioni Futura <info@soluzionifutura.it>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/soluzionifutura/open-api-mock-server/issues"
+  },
+  "homepage": "https://github.com/soluzionifutura/open-api-mock-server#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@soluzioni-futura/eslint-config-soluzioni-futura": "^1.2.0",
+    "@types/body-parser": "^1.19.0",
+    "@types/cors": "^2.8.9",
+    "@types/debug": "^4.1.5",
+    "@types/express": "^4.17.9",
+    "@types/json-schema-faker": "^0.5.1",
+    "@types/multer": "^1.4.5",
+    "@types/node": "^14.14.16",
+    "@types/valid-url": "^1.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.11.0",
+    "@typescript-eslint/parser": "^4.11.0",
+    "eslint": "^7.16.0",
+    "json-schema-to-typescript": "^10.0.2",
+    "rollup": "^2.35.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-openapi-validator": "^4.9.5",
+    "json-schema-faker": "^0.5.0-rcv.32",
+    "jsonschema": "^1.4.0",
+    "path-match": "^1.2.4",
+    "simple-argv": "^2.0.4",
+    "valid-url": "^1.0.9"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ]
+}

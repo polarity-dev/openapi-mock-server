@@ -1,0 +1,50 @@
+{
+  "type": "object",
+  "properties": {
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "method": {
+                "type": "string",
+                "enum": ["get", "post", "put", "delete"]
+              }
+            },
+            "additionalProperties": false,
+            "required": ["path", "method"]
+          },
+          "responses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "integer"
+                },
+                "headers": {
+                  "type": "object"
+                },
+                "body": {
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false,
+              "required": ["statusCode"]
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": ["request", "responses"]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": ["routes"]
+}

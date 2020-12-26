@@ -1,0 +1,105 @@
+{
+  "type": "object",
+  "properties": {
+    "defaultInvalidTypeProduct": {
+      "type": "string",
+      "default": "null"
+    },
+    "defaultRandExpMax": {
+      "type": "integer",
+      "default": 10
+    },
+    "ignoreProperties": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "ignoreMissingRefs": {
+      "type": "boolean",
+      "default": false
+    },
+    "failOnInvalidTypes": {
+      "type": "boolean",
+      "default": true
+    },
+    "failOnInvalidFormat": {
+      "type": "boolean",
+      "default": true
+    },
+    "alwaysFakeOptionals": {
+      "type": "boolean",
+      "default": false
+    },
+    "optionalsProbability": {
+      "type": "number",
+      "multipleOf": 0.1,
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "fixedProbabilities": {
+      "type": "boolean",
+      "default": false
+    },
+    "useExamplesValue": {
+      "type": "boolean",
+      "default": false
+    },
+    "useDefaultValue": {
+      "type": "boolean",
+      "default": false
+    },
+    "requiredOnly": {
+      "type": "boolean",
+      "default": false
+    },
+    "minItems": {
+      "type": "number",
+      "multipleOf": 1,
+      "default": 0
+    },
+    "maxItems": {
+      "type": "number",
+      "multipleOf": 1,
+      "default": null
+    },
+    "minLength": {
+      "type": "number",
+      "multipleOf": 1,
+      "default": 0
+    },
+    "maxLength": {
+      "type": "number",
+      "multipleOf": 1,
+      "default": null
+    },
+    "refDepthMin": {
+      "type": "number",
+      "multipleOf": 1,
+      "default": 0
+    },
+    "refDepthMax": {
+      "type": "number",
+      "multipleOf": 1,
+      "default": 3
+    },
+    "resolveJsonPath": {
+      "type": "boolean",
+      "default": false
+    },
+    "reuseProperties": {
+      "type": "boolean",
+      "default": false
+    },
+    "fillProperties": {
+      "type": "boolean",
+      "default": true
+    },
+    "replaceEmptyByRandomValue": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "additionalProperties": false
+}

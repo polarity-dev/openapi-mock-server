@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "properties": {
+    "port": {
+      "type": "integer",
+      "default": 8080
+    },
+    "validateRequests": {
+      "type": "boolean",
+      "default": false
+    },
+    "validateResponses": {
+      "type": "boolean",
+      "default": false
+    },
+    "openapiDefinition": {
+      "type": "string"
+    },
+    "validateFormats": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["fast", "full"]
+        },
+        {
+          "type": "boolean",
+          "enum": [false]
+        }
+      ]
+    },
+    "unknownFormats": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["ignore"]
+        },
+        {
+          "type": "boolean",
+          "enum": [true]
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "additionalProperties": false
+}
