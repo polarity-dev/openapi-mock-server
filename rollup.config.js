@@ -7,10 +7,11 @@ import { terser } from "rollup-plugin-terser"
 export default [
   {
     input: "./src/index.ts",
-    output: {
+    output: [{
+      banner:"#!/usr/bin/env node",
       file: "./dist/index.js",
       format: "cjs"
-    },
+    }],
     plugins: [
       json(),
       typescript({

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 "use strict";var e=require("express"),t=require("express-openapi-validator"),r=require("@apidevtools/json-schema-ref-parser"),n=require("body-parser"),a=require("json-schema-ref-parser"),i=require("axios"),o=require("cors"),s=require("path"),u=require("valid-url"),l=require("debug"),c=require("path-to-regexp"),p=require("statuses"),f=require("inherits"),h=require("jsonschema");function d(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}function m(e){if(e&&e.__esModule)return e;var t=Object.create(null);return e&&Object.keys(e).forEach((function(r){if("default"!==r){var n=Object.getOwnPropertyDescriptor(e,r);Object.defineProperty(t,r,n.get?n:{enumerable:!0,get:function(){return e[r]}})}})),t.default=e,Object.freeze(t)}var y=d(e),g=d(r),v=d(n),b=d(a),x=d(i),w=d(o),O=d(u),E=d(l),F=d(c),j=d(p),k=d(f);
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
