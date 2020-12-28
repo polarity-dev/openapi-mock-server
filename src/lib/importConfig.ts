@@ -66,7 +66,7 @@ const importFile = async<T>({ filePath, defaultFileName, jsonSchema }: { filePat
   return fileData
 }
 
-export const importConfigFile = async ({ filePath }: { filePath?: string }): Promise<configType | undefined> => {
+export const importConfigFile = async({ filePath }: { filePath?: string }): Promise<configType | undefined> => {
 
   const configFile = await importFile<configType>({
     filePath,
@@ -84,7 +84,7 @@ export const importConfigFile = async ({ filePath }: { filePath?: string }): Pro
   return configFile
 }
 
-export const importOverridesFile = async ({ filePath }: { filePath?: string }): Promise<MockOverrides | undefined> => {
+export const importOverridesFile = async({ filePath }: { filePath?: string }): Promise<MockOverrides | undefined> => {
 
   const overridesConfigFile = await importFile<MockOverrides>({
     filePath,
