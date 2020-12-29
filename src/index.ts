@@ -23,34 +23,53 @@ import { JsfConfig } from "./types/jsfConfig"
 
 const debug = Debug("mock")
 
-const serverConfig: configType = {
+const cliInputs = {
   express: {
-    port: argv.port as number || 8080,
-    validateRequests: false,
-    validateResponses: false,
-    openapiDefinition: argv.openapiDefinition as string,
-    unknownFormats: "ignore"
+    port: argv.port,
+    openapiDefinition: argv.openapi,
+    validateRequests: argv["express.validateRequests"],
+    validateResponses: argv["express.validateResponses"],
+    unknownFormats: argv["express.unknownFormats"]
   },
   jsf: {
-    fillProperties: false,
-    useExamplesValue: true,
-    useDefaultValue: true,
-    failOnInvalidFormat: false,
-    refDepthMax: 5
+    fillProperties: argv["jsf.fillProperties"],
+    useExamplesValue: argv["jsf.useExamplesValue"],
+    useDefaultValue: argv["jsf.useDefaultValue"],
+    failOnInvalidFormat: argv["jsf.failOnInvalidFormat"]
   }
 }
 
-const updateServerConfig = (configFile: configType): void => {
-  Object.entries(configFile).forEach(([key, value]: [string, ExpressConfig | JsfConfig]) => {
+const updateServerConfig = (serverConfig: configType, newServerConfig: configType): void => {
+  Object.entries(newServerConfig).forEach(([key, value]: [string, ExpressConfig | JsfConfig]) => {
+    const noUndefinedKeys = Object.fromEntries(Object.entries(value)
+      // eslint-disable-next-line no-unused-vars
+      .filter(([key, value]) => value !== undefined))
+
     serverConfig[key as keyof configType] = {
       ...serverConfig[key as keyof configType],
-      ...value
+      ...noUndefinedKeys
     }
   })
 }
 
 
 void (async(): Promise<void> => {
+
+  const serverConfig: configType = {
+    express: {
+      port: 8080,
+      validateRequests: false,
+      validateResponses: false,
+      unknownFormats: "ignore"
+    },
+    jsf: {
+      fillProperties: false,
+      useExamplesValue: true,
+      useDefaultValue: true,
+      failOnInvalidFormat: false,
+      refDepthMax: 5
+    }
+  }
 
   const configFile = await importConfigFile({ filePath: argv["mock-config"] as string | undefined })
 
@@ -59,6 +78,12 @@ void (async(): Promise<void> => {
     return
   }
 
+  if (configFile.data) {
+    updateServerConfig(serverConfig, configFile.data)
+  }
+
+  updateServerConfig(serverConfig, cliInputs)
+
   const overridesFile = await importOverridesFile({ filePath: argv["mock-overrides"] as string | undefined })
 
   if (overridesFile.type === "error") {
@@ -66,9 +91,6 @@ void (async(): Promise<void> => {
     return
   }
 
-  if (configFile.data) {
-    updateServerConfig(configFile.data)
-  }
 
   debug(`Mock Server Config:\n${JSON.stringify(serverConfig, null, 2)}`)
 
@@ -76,14 +98,14 @@ void (async(): Promise<void> => {
     express: expressMiddlewareConfig,
     express: {
       port,
-      openapiDefinition
+      openapi
     },
     jsf: jsfConfig } = serverConfig
 
   delete expressMiddlewareConfig.port
-  delete expressMiddlewareConfig.openapiDefinition
+  delete expressMiddlewareConfig.openapi
 
-  if (!openapiDefinition) {
+  if (!openapi) {
     logFunctionErrorResponse({
       type: "error",
       title: "Missing required parameters",
@@ -99,9 +121,9 @@ void (async(): Promise<void> => {
     ...jsfConfig
   })
 
-  const apiSpec: OpenAPIV3.Document = validUrl.isWebUri(openapiDefinition) ?
-    (await axios.get(openapiDefinition)).data :
-    require(join(process.cwd(), openapiDefinition))
+  const apiSpec: OpenAPIV3.Document = validUrl.isWebUri(openapi) ?
+    (await axios.get(openapi)).data :
+    require(join(process.cwd(), openapi))
 
   // the current implementation doesn't implement security handlers
   const pathsWithoutSecurity = deletePathsSecurity(apiSpec.paths)
