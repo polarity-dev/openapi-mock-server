@@ -46,8 +46,9 @@ const importPaths = async<T>({ paths, jsonSchema }: { paths: string[], jsonSchem
       const error: FunctionErrorResponse = {
         type: "error",
         title: "JSON schema error",
-        docs: "https://github.com/soluzionifutura/openapi-mock-server",
-        messages: []
+        docs: "https://github.com/soluzionifutura/openapi-mock-server#configuration-files",
+        messages: [],
+        hints: ["To learn more add \"DEBUG=mock*\" before \"mock\" command. es \"DEBUG=mock* mock\""]
       }
       for (const validationError of validationResult.errors) {
         error.messages.push(validationError.message)
@@ -76,8 +77,7 @@ const importFile = async<T>({ filePath, defaultFileName, jsonSchema }: { filePat
     return {
       type: "error",
       title: "Import file error",
-      messages: [`${join(process.cwd(), filePath)} not found!`],
-      docs: "https://github.com/soluzionifutura/openapi-mock-server"
+      messages: [`${join(process.cwd(), filePath)} not found!`]
     }
   }
 

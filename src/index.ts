@@ -26,7 +26,7 @@ const debug = Debug("mock")
 const cliInputs = {
   express: {
     port: argv.port,
-    openapiDefinition: argv.openapi,
+    openapi: argv.openapi,
     validateRequests: argv["express.validateRequests"],
     validateResponses: argv["express.validateResponses"],
     unknownFormats: argv["express.unknownFormats"]
@@ -91,7 +91,6 @@ void (async(): Promise<void> => {
     return
   }
 
-
   debug(`Mock Server Config:\n${JSON.stringify(serverConfig, null, 2)}`)
 
   const {
@@ -110,9 +109,11 @@ void (async(): Promise<void> => {
       type: "error",
       title: "Missing required parameters",
       messages: ["No OpenAPI Specification"],
-      hints: ["It can be specified via CLI flag \"--openapi\". (es. mock --openapi \"path or URL to the OpenAPI Specification\")"],
-      docs: "https://github.com/soluzionifutura/openapi-mock-server"
-
+      hints: [
+        "It can be specified via CLI flag \"--openapi\". (es. mock --openapi \"path or URL to the OpenAPI Specification\")",
+        "To learn more add \"DEBUG=mock*\" before \"mock\" command. es \"DEBUG=mock* mock\""
+      ],
+      docs: "https://github.com/soluzionifutura/openapi-mock-server#command-line-flags"
     })
     return
   }
@@ -121,9 +122,27 @@ void (async(): Promise<void> => {
     ...jsfConfig
   })
 
-  const apiSpec: OpenAPIV3.Document = validUrl.isWebUri(openapi) ?
-    (await axios.get(openapi)).data :
-    require(join(process.cwd(), openapi))
+  let apiSpec: OpenAPIV3.Document
+
+
+  try {
+    apiSpec = validUrl.isWebUri(openapi) ?
+      (await axios.get(openapi)).data :
+      require(join(process.cwd(), openapi))
+  } catch (err) {
+    logFunctionErrorResponse({
+      type: "error",
+      title: "Import OpenAPI Specification error",
+      messages: [err.message],
+      hints: [
+        `Check if this file/URL exists: ${validUrl.isWebUri(openapi) ?
+          openapi :
+          join(process.cwd(), openapi)}`
+      ]
+    })
+
+    return
+  }
 
   // the current implementation doesn't implement security handlers
   const pathsWithoutSecurity = deletePathsSecurity(apiSpec.paths)
@@ -165,6 +184,6 @@ void (async(): Promise<void> => {
       title: "Unexpected error",
       messages: [err.message],
       hints: ["This error seems to be an bug, please open an Issue on Github | https://github.com/soluzionifutura/openapi-mock-server/issues"],
-      docs: "https://github.com/soluzionifutura/openapi-mock-server"
+      docs: "https://github.com/soluzionifutura/openapi-mock-server#openapi-mock-server"
     })
   })
