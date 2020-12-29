@@ -17,7 +17,7 @@ import argv from "simple-argv"
 
 import { createOperationId } from "./lib/operation"
 import { importConfigFile, configType, importOverridesFile } from "./lib/importConfig"
-import { deletePathsSecurity } from "./lib/utils"
+import { deletePathsSecurity, logFunctionErrorResponse } from "./lib/utils"
 import { ExpressConfig } from "./types/expressConfig"
 import { JsfConfig } from "./types/jsfConfig"
 
@@ -50,13 +50,24 @@ const updateServerConfig = (configFile: configType): void => {
 }
 
 
-void (async (): Promise<void> => {
+void (async(): Promise<void> => {
 
   const configFile = await importConfigFile({ filePath: argv["mock-config"] as string | undefined })
+
+  if (configFile.type === "error") {
+    logFunctionErrorResponse(configFile)
+    return
+  }
+
   const overridesFile = await importOverridesFile({ filePath: argv["mock-overrides"] as string | undefined })
 
-  if (configFile) {
-    updateServerConfig(configFile)
+  if (overridesFile.type === "error") {
+    logFunctionErrorResponse(overridesFile)
+    return
+  }
+
+  if (configFile.data) {
+    updateServerConfig(configFile.data)
   }
 
   debug(`Mock Server Config:\n${JSON.stringify(serverConfig, null, 2)}`)
@@ -73,7 +84,15 @@ void (async (): Promise<void> => {
   delete expressMiddlewareConfig.openapiDefinition
 
   if (!openapiDefinition) {
-    throw Error("No openapi definition")
+    logFunctionErrorResponse({
+      type: "error",
+      title: "Missing required parameters",
+      messages: ["No OpenAPI Specification"],
+      hints: ["It can be specified via CLI flag \"--openapi\". (es. mock --openapi \"path or URL to the OpenAPI Specification\")"],
+      docs: "https://github.com/soluzionifutura/openapi-mock-server"
+
+    })
+    return
   }
 
   jsf.option({
@@ -85,7 +104,14 @@ void (async (): Promise<void> => {
     require(join(process.cwd(), openapiDefinition))
 
   // the current implementation doesn't implement security handlers
-  apiSpec.paths = deletePathsSecurity(apiSpec.paths)
+  const pathsWithoutSecurity = deletePathsSecurity(apiSpec.paths)
+
+  if (pathsWithoutSecurity.type === "error") {
+    logFunctionErrorResponse(pathsWithoutSecurity)
+    return
+  }
+
+  apiSpec.paths = pathsWithoutSecurity.data
 
   // refs is an object with a method called "get" that return resolved json path
   const refs = await $RefParser.resolve(apiSpec)
@@ -103,11 +129,20 @@ void (async (): Promise<void> => {
       operationHandlers: {
         basePath: "",
         resolver: (handlersPath: string, route: RouteMetadata, apiDoc: OpenAPIV3.Document): RequestHandler =>
-          createOperationId({ refs, apiDoc, overridesFile, route })
+          createOperationId({ refs, apiDoc, overridesFile: overridesFile.data, route })
       }
     })
   )
 
-  app.listen(port, () => debug(`Listening on port: ${port}`))
+  app.listen(port, () => console.info(`Listening on port: ${port}`))
+
 })()
-  .catch((err: Error) => debug(err))
+  .catch((err: Error) => {
+    logFunctionErrorResponse({
+      type: "error",
+      title: "Unexpected error",
+      messages: [err.message],
+      hints: ["This error seems to be an bug, please open an Issue on Github | https://github.com/soluzionifutura/openapi-mock-server/issues"],
+      docs: "https://github.com/soluzionifutura/openapi-mock-server"
+    })
+  })
