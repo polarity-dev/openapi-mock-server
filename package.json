@@ -64,5 +64,10 @@
   "files": [
     "dist/**/*.js",
     "dist/**/*.d.ts"
+  ],
+  "keywords": [
+    "mockserver",
+    "swagger",
+    "openapi"
   ]
 }
