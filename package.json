@@ -1,5 +1,5 @@
 {
-  "name": "open-api-mock-server",
+  "name": "@soluzionifutura/openapi-mock-server",
   "version": "1.0.0",
   "description": "OpenAPI Mock Server",
   "main": "dist/index.js",
@@ -18,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/soluzionifutura/open-api-mock-server.git"
+    "url": "git+https://github.com/soluzionifutura/openapi-mock-server.git"
   },
   "author": "Soluzioni Futura <info@soluzionifutura.it>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/soluzionifutura/open-api-mock-server/issues"
+    "url": "https://github.com/soluzionifutura/openapi-mock-server/issues"
   },
-  "homepage": "https://github.com/soluzionifutura/open-api-mock-server#readme",
+  "homepage": "https://github.com/soluzionifutura/openapi-mock-server#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-json": "^4.1.0",
