@@ -2,6 +2,7 @@ import json from "@rollup/plugin-json"
 import commonjs from "@rollup/plugin-commonjs"
 import typescript from "rollup-plugin-typescript2"
 import resolve from "@rollup/plugin-node-resolve"
+import copy from "rollup-plugin-copy"
 import { terser } from "rollup-plugin-terser"
 
 export default [
@@ -14,6 +15,11 @@ export default [
     }],
     plugins: [
       json(),
+      copy({
+        targets: [
+          { src: "src/types", dest: "dist" }
+        ]
+      }),
       typescript({
         tsconfig: "./tsconfig.rollup.json"
       }),
