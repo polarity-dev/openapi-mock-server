@@ -26,7 +26,7 @@
     },
     "failOnInvalidFormat": {
       "type": "boolean",
-      "default": true
+      "default": false
     },
     "alwaysFakeOptionals": {
       "type": "boolean",
@@ -44,11 +44,11 @@
     },
     "useExamplesValue": {
       "type": "boolean",
-      "default": false
+      "default": true
     },
     "useDefaultValue": {
       "type": "boolean",
-      "default": false
+      "default": true
     },
     "requiredOnly": {
       "type": "boolean",
@@ -82,7 +82,7 @@
     "refDepthMax": {
       "type": "number",
       "multipleOf": 1,
-      "default": 3
+      "default": 5
     },
     "resolveJsonPath": {
       "type": "boolean",
@@ -94,7 +94,7 @@
     },
     "fillProperties": {
       "type": "boolean",
-      "default": true
+      "default": false
     },
     "replaceEmptyByRandomValue": {
       "type": "boolean",

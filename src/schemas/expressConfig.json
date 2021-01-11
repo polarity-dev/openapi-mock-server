@@ -5,6 +5,9 @@
       "type": "integer",
       "default": 8080
     },
+    "openapi": {
+      "type": "string"
+    },
     "validateRequests": {
       "type": "boolean",
       "default": false
@@ -12,9 +15,6 @@
     "validateResponses": {
       "type": "boolean",
       "default": false
-    },
-    "openapiDefinition": {
-      "type": "string"
     },
     "validateFormats": {
       "anyOf": [

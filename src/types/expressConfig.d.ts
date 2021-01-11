@@ -7,9 +7,9 @@
 
 export interface ExpressConfig {
   port?: number
+  openapi?: string
   validateRequests?: boolean
   validateResponses?: boolean
-  openapiDefinition?: string
   validateFormats?: ("fast" | "full") | false
   unknownFormats?: "ignore" | true | string[]
 }

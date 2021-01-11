@@ -3,7 +3,7 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es5",
+    "target": "esnext",
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "build",
