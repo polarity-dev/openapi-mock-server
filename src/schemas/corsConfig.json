@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "origin": {
+      "type": "string",
+      "default": "*"
+    },
+    "credentials": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "additionalProperties": false
+}
