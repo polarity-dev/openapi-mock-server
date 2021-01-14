@@ -5,10 +5,12 @@ import Debug from "debug"
 import { ExpressConfig } from "../types/expressConfig"
 import { JsfConfig } from "../types/jsfConfig"
 import { MockOverrides } from "../types/mockOverrides"
+import { CorsConfig } from "../types/corsConfig"
 
 import expressConfig from "../schemas/expressConfig.json"
 import jsfConfig from "../schemas/jsfConfig.json"
 import mockOverrides from "../schemas/mockOverrides.json"
+import corsConfig from "../schemas/corsConfig.json"
 import { FunctionResponse, FunctionErrorResponse } from "./utils"
 
 const debug = Debug("mock")
@@ -16,6 +18,7 @@ const debug = Debug("mock")
 export type configType = {
   express: ExpressConfig
   jsf: JsfConfig
+  cors: CorsConfig
 }
 const createPaths = ({ filePath, defaultFileName }: { filePath?: string, defaultFileName: string }): string[] =>
   filePath
@@ -93,7 +96,8 @@ export const importConfigFile = async({ filePath }: { filePath?: string }): Prom
       type: "object",
       properties: {
         express: expressConfig,
-        jsf: jsfConfig
+        jsf: jsfConfig,
+        cors: corsConfig
       },
       additionalProperties: false
     }

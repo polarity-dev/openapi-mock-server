@@ -20,6 +20,7 @@ import { importConfigFile, configType, importOverridesFile } from "./lib/importC
 import { deletePathsSecurity, logFunctionErrorResponse } from "./lib/utils"
 import { ExpressConfig } from "./types/expressConfig"
 import { JsfConfig } from "./types/jsfConfig"
+import { CorsConfig } from "./types/corsConfig"
 
 const debug = Debug("mock")
 
@@ -36,11 +37,15 @@ const cliInputs = {
     useExamplesValue: argv["jsf.useExamplesValue"],
     useDefaultValue: argv["jsf.useDefaultValue"],
     failOnInvalidFormat: argv["jsf.failOnInvalidFormat"]
+  },
+  cors: {
+    origin: argv["cors.origin"],
+    credentials: argv["cors.credentials"]
   }
 }
 
 const updateServerConfig = (serverConfig: configType, newServerConfig: configType): void => {
-  Object.entries(newServerConfig).forEach(([key, value]: [string, ExpressConfig | JsfConfig]) => {
+  Object.entries(newServerConfig).forEach(([key, value]: [string, ExpressConfig | JsfConfig | CorsConfig]) => {
     const noUndefinedKeys = Object.fromEntries(Object.entries(value)
       // eslint-disable-next-line no-unused-vars
       .filter(([key, value]) => value !== undefined))
@@ -68,6 +73,10 @@ void (async(): Promise<void> => {
       useDefaultValue: true,
       failOnInvalidFormat: false,
       refDepthMax: 5
+    },
+    cors: {
+      origin: "*",
+      credentials: true
     }
   }
 
@@ -99,7 +108,8 @@ void (async(): Promise<void> => {
       port,
       openapi
     },
-    jsf: jsfConfig } = serverConfig
+    jsf: jsfConfig,
+    cors: corsOptions } = serverConfig
 
   delete expressMiddlewareConfig.port
   delete expressMiddlewareConfig.openapi
@@ -159,7 +169,7 @@ void (async(): Promise<void> => {
 
   const app = express()
 
-  app.use(cors())
+  app.use(cors(corsOptions))
 
   app.use(bodyParser.json())
 

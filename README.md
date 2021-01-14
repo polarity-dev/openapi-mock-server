@@ -60,6 +60,12 @@ Many options have command line equivalents. In those cases, any arguments passed
                                        (default: true)
 --jsf.failOnInvalidFormat              if enabled, it will throw an Error for unknown formats
                                        (default: false)
+
+--cors.origin                          configures the Access-Control-Allow-Origin CORS header
+                                       (default: "*")
+--cors.credentials                     configures the Access-Control-Allow-Credentials CORS header. 
+                                       Set to true to pass the header, otherwise it is omitted.  
+                                       (default: true)                
 ```
 
 ## Configuration files
@@ -79,9 +85,10 @@ You can specify the path of this file via CLI flag `--mock-config`
 $ mock --mock-config path/to/file
 ```
 
-This file is used to configure express and json-schema-faker of the mock server, it's divided into two sections:
+This file is used to configure express and json-schema-faker of the mock server, it's divided into three sections:
 1. `express` contains express configurable options. [json schema](./src/schemas/expressConfig.json) | [about express-openapi-validator options](https://github.com/cdimascio/express-openapi-validator#openapivalidator-middleware-options) (not all options are supported, see the json schema to see which ones are supported)
 2. `jsf` contains json-schema-faker configurable options. [json schema](./src/schemas/jsfConfig.json) | [about jsf options](https://github.com/json-schema-faker/json-schema-faker/tree/master/docs#available-options)
+3. `cors` contains cors configurable options. [cors schema](./src/schemas/corsConfig.json) | [about cors options](https://github.com/expressjs/cors#configuration-options) (not all options are supported, see the json schema to see which ones are supported)
 
 ```js
 // example
@@ -92,6 +99,9 @@ This file is used to configure express and json-schema-faker of the mock server,
   },
   "jsf": {
     "failOnInvalidFormat": true
+  },
+  "cors": {
+    "origin": "http://localhost:3000"
   }
 }
 ```
