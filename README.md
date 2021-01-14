@@ -13,14 +13,14 @@ This is a [Node.js](https://nodejs.org/en/) module available through the [npm re
 Installation is done using the [`npm install` command](https://docs.npmjs.com/downloading-and-installing-packages-locally):
 
 ```sh
-$ npm install -g @soluzionifutura/openapi-mock-server
+$ npm install -g @soluzioni-futura/openapi-mock-server
 ```
 
 ## Quick start
 
 Install `openapi-mock-server` globally
 ```sh
-$ npm install -g @soluzionifutura/openapi-mock-server
+$ npm install -g @soluzioni-futura/openapi-mock-server
 ```
 
 Start the mock server
