@@ -120,6 +120,8 @@ This file able you to override the mock server behavior to particular http reque
 
 If an override of a path is provided that it will be used instead of the random response. Only `statusCode: 200` is supported for now.
 
+**Consider splitting this file into multiple ones** because one single large mock-overrides file is not maintainable. [Recursive import mock-overrides files](#recursive-import-mock-overrides-files)
+
 ```js
 // example
 {
@@ -145,6 +147,91 @@ If an override of a path is provided that it will be used instead of the random 
 }
 ```
 
+#### Recursive import mock-overrides files 
+
+Customize mock server responses via mock-overrides files is a very convenient way when you do not have an up and running backend or simply you are testing an edge case (es. API that requires auth, a key match with an object in S3).
+
+The mock-overrides file can become very long and hard to maintain, in order to solve this issue we introduced a way to import partial files instead of a single one. 
+
+To achieve this feature we used [glob](https://github.com/isaacs/node-glob#readme), so **instead of passing a file path you can specify a pattern** and the mock server will automatically merge all those files. The schema of those files follows the convention specified above.
+
+#### Example of recursive import mock-overrides files 
+
+Let's say that you want to split the mock-overrides file into 2 files:
+- *mock/mock-overrides-1.json*
+- *mock/mock-overrides-2.json*
+
+```js
+// mock/mock-overrides-1.json
+{
+  "routes": [
+    {
+      "request": {
+        "path": "path/to/override/1",
+        "method": "get"
+      },
+      "responses": [
+        {
+          "statusCode": 200,
+          "headers": {
+            // response header
+          },
+          "body": {
+            // response body
+          }
+        }
+      ]
+    }
+  ]
+} 
+
+// mock/mock-overrides-2.json
+{
+  "routes": [
+    {
+      "request": {
+        "path": "path/to/override/2",
+        "method": "get"
+      },
+      "responses": [
+        {
+          "statusCode": 200,
+          "headers": {
+            // response header
+          },
+          "body": {
+            // response body
+          }
+        }
+      ]
+    }, {
+      "request": {
+        "path": "path/to/override/3",
+        "method": "get"
+      },
+      "responses": [
+        {
+          "statusCode": 200,
+          "headers": {
+            // response header
+          },
+          "body": {
+            // response body
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+Now, to run the mock server that uses those 2 files (NOTE: both into the folder `mock`) 
+
+```bash
+mock --mock-overrides "./path/to/mock/folder/*.json"
+```
+
+**Remember to wrap the pattern with `"`**
 ## Developer instructions
 
 In order to work with this project you need:
