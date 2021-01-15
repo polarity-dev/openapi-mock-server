@@ -1,6 +1,7 @@
 import { join } from "path"
 import { Validator } from "jsonschema"
 import Debug from "debug"
+import glob from "glob"
 
 import { ExpressConfig } from "../types/expressConfig"
 import { JsfConfig } from "../types/jsfConfig"
@@ -11,7 +12,7 @@ import expressConfig from "../schemas/expressConfig.json"
 import jsfConfig from "../schemas/jsfConfig.json"
 import mockOverrides from "../schemas/mockOverrides.json"
 import corsConfig from "../schemas/corsConfig.json"
-import { FunctionResponse, FunctionErrorResponse } from "./utils"
+import { FunctionResponse, FunctionErrorResponse, FunctionSuccessResponse, mergeFunctionErrorResponses } from "./utils"
 
 const debug = Debug("mock")
 
@@ -29,9 +30,11 @@ const createPaths = ({ filePath, defaultFileName }: { filePath?: string, default
 const importPaths = async<T>({ paths, jsonSchema }: { paths: string[], jsonSchema?: any }): Promise<FunctionResponse<T | undefined>> => {
 
   let fileConfig: T | undefined
+  let importedFilePath: string | undefined
 
   for (const filePath of paths) {
     try {
+      importedFilePath = join(process.cwd(), filePath)
       const { default: fileData }: { default: T } = await import(join(process.cwd(), filePath))
 
       fileConfig = fileData
@@ -50,7 +53,7 @@ const importPaths = async<T>({ paths, jsonSchema }: { paths: string[], jsonSchem
         type: "error",
         title: "JSON schema error",
         docs: "https://github.com/soluzionifutura/openapi-mock-server#configuration-files",
-        messages: [],
+        messages: [`File: ${importedFilePath}`],
         hints: ["To learn more add \"DEBUG=mock*\" before \"mock\" command. es \"DEBUG=mock* mock\""]
       }
       for (const validationError of validationResult.errors) {
@@ -87,6 +90,37 @@ const importFile = async<T>({ filePath, defaultFileName, jsonSchema }: { filePat
   return fileData
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const recursiveImport =  async<T>({ folderOrFilePath, jsonSchema }: {folderOrFilePath: string, jsonSchema?: any}): Promise<FunctionResponse<T | undefined>[]> => {
+  const paths = glob.sync(folderOrFilePath)
+
+  if (!paths.length) {
+    return [{
+      type: "error",
+      title: "Import file error",
+      messages: [
+        `No files matched for this pattern: ${folderOrFilePath}!`,
+        `Full pattern: ${join(process.cwd(), folderOrFilePath)}`
+      ],
+      hints: ["See an example here: https://github.com/soluzionifutura/openapi-mock-server#recursive-import-mock-overrides-files"],
+      docs: "https://github.com/isaacs/node-glob#readme"
+    }]
+  }
+
+  const filesData: FunctionResponse<T | undefined>[] = []
+
+  for (const filePath of paths) {
+    const importedFile = await importFile<T>({
+      filePath,
+      defaultFileName: "",
+      jsonSchema
+    })
+    filesData.push(importedFile)
+  }
+
+  return filesData
+}
+
 export const importConfigFile = async({ filePath }: { filePath?: string }): Promise<FunctionResponse<configType | undefined>> => {
 
   const configFile = await importFile<configType>({
@@ -108,11 +142,45 @@ export const importConfigFile = async({ filePath }: { filePath?: string }): Prom
 
 export const importOverridesFile = async({ filePath }: { filePath?: string }): Promise<FunctionResponse<MockOverrides | undefined>> => {
 
-  const overridesConfigFile = await importFile<MockOverrides>({
-    filePath,
-    defaultFileName: "mock-overrides",
+  if (!filePath) {
+    const overridesConfigFile = await importFile<MockOverrides>({
+      filePath,
+      defaultFileName: "mock-overrides",
+      jsonSchema: mockOverrides
+    })
+
+    return overridesConfigFile
+  }
+
+  const importedMockOverrides =  await recursiveImport<MockOverrides>({
+    folderOrFilePath: filePath,
     jsonSchema: mockOverrides
   })
 
-  return overridesConfigFile
+  const functionErrorResponse = mergeFunctionErrorResponses<MockOverrides|undefined>({
+    functionResponses: importedMockOverrides,
+    toAppend: {
+      messages: true
+    }
+  })
+
+  if (functionErrorResponse) {
+    return functionErrorResponse
+  }
+
+  const mergedMockOverrides = mergeMockOverrides({
+    mockOverrides: importedMockOverrides
+  })
+
+  return mergedMockOverrides
 }
+
+const mergeMockOverrides = ({ mockOverrides }: {mockOverrides: FunctionResponse<MockOverrides | undefined>[]}): FunctionResponse<MockOverrides> =>
+  ({
+    type: "data",
+    data: {
+      routes: mockOverrides
+        .map((overrides) => (overrides as FunctionSuccessResponse<MockOverrides>).data.routes)
+        .flat()
+    }
+  })
