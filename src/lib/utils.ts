@@ -19,7 +19,7 @@ export const logFunctionErrorResponse = (error: FunctionErrorResponse): void => 
 
   error.messages.forEach(message => console.error(`* ${message}`))
 
-  if (error.hints) {
+  if (error.hints && error.hints.length) {
     console.error(colors.bold("\nHints:"))
 
     error.hints.forEach(hint => console.error(colors.cyan(`* ${hint}`)))
@@ -66,3 +66,33 @@ export const deletePathsSecurity = (paths: OpenAPIV3.PathsObject): FunctionRespo
   }
 }
 
+export const mergeFunctionErrorResponses = <T>({ functionResponses, toAppend }: {functionResponses: FunctionResponse<T>[], toAppend?: { messages?: boolean, hints?: boolean }}): FunctionErrorResponse|undefined => {
+  const functionErrorResponses = functionResponses
+    .filter(functionResponse => functionResponse.type === "error")
+    .map(functionResponse => functionResponse as FunctionErrorResponse)
+
+  if (!functionErrorResponses.length) {
+    return
+  }
+
+  const mergedFunctionErrorResponses: FunctionErrorResponse = {
+    type: "error",
+    title: functionErrorResponses[0].title,
+    messages: toAppend?.messages ?
+      functionErrorResponses
+        .map(functionResponse => functionResponse.messages)
+        .flat(1)
+      :
+      functionErrorResponses[0].messages,
+    hints: toAppend?.hints ?
+      functionErrorResponses
+        .filter(functionResponse => functionResponse.hints)
+        .map(functionResponse => functionResponse.hints as string[])
+        .flat(1)
+      :
+      functionErrorResponses[0].hints,
+    docs: functionErrorResponses[0].docs
+  }
+
+  return mergedFunctionErrorResponses
+}
