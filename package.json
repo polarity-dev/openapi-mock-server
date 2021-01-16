@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "mock": "dist/index.js"
+    "mock": "bin/index.js"
   },
   "scripts": {
     "dev": "DEBUG=mock* ts-node --project tsconfig.json src/index.ts",
@@ -13,7 +13,7 @@
     "eslint": "eslint 'src/**/*.{ts,tsx}' --ignore-pattern src/types; exit 0",
     "eslint:fix": "eslint '**/*.{ts,tsx}' --fix --ignore-pattern src/types; exit 0",
     "rollup": "rollup -c",
-    "build": "rm -rf dist && npm run rollup",
+    "build": "rm -rf dist && rm -rf bin && npm run rollup",
     "start": "DEBUG=mock* node dist/index.js"
   },
   "repository": {
