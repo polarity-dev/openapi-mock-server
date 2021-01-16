@@ -16,10 +16,10 @@ import { FunctionResponse, FunctionErrorResponse, FunctionSuccessResponse, merge
 
 const debug = Debug("mock")
 
-export type configType = {
-  express: ExpressConfig
-  jsf: JsfConfig
-  cors: CorsConfig
+export type MockServerConfig = {
+  express?: ExpressConfig
+  jsf?: JsfConfig
+  cors?: CorsConfig
 }
 const createPaths = ({ filePath, defaultFileName }: { filePath?: string, defaultFileName: string }): string[] =>
   filePath
@@ -121,9 +121,9 @@ const recursiveImport =  async<T>({ folderOrFilePath, jsonSchema }: {folderOrFil
   return filesData
 }
 
-export const importConfigFile = async({ filePath }: { filePath?: string }): Promise<FunctionResponse<configType | undefined>> => {
+export const importConfigFile = async({ filePath }: { filePath?: string }): Promise<FunctionResponse<MockServerConfig | undefined>> => {
 
-  const configFile = await importFile<configType>({
+  const configFile = await importFile<MockServerConfig>({
     filePath,
     defaultFileName: "mock-config",
     jsonSchema: {
