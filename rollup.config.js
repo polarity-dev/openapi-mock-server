@@ -9,15 +9,39 @@ export default [
   {
     input: "./src/index.ts",
     output: [{
-      banner: "#!/usr/bin/env node",
       file: "./dist/index.js",
-      format: "cjs"
+      format: "cjs",
+      exports: "default"
     }],
     plugins: [
       json(),
       copy({
         targets: [
           { src: "src/types", dest: "dist" }
+        ]
+      }),
+      typescript({
+        tsconfig: "./tsconfig.rollup.json"
+      }),
+      commonjs(),
+      resolve({
+        modulesOnly: true,
+        preferBuiltins: true
+      }),
+      terser()
+    ]
+  }, {
+    input: "./src/bin.ts",
+    output: [{
+      banner: "#!/usr/bin/env node",
+      file: "./bin/index.js",
+      format: "cjs"
+    }],
+    plugins: [
+      json(),
+      copy({
+        targets: [
+          { src: "src/types", dest: "bin" }
         ]
       }),
       typescript({

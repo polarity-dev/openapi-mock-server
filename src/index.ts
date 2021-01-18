@@ -11,56 +11,43 @@ import { join } from "path"
 import validUrl from "valid-url"
 import Debug from "debug"
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import argv from "simple-argv"
-
 import { createOperationId } from "./lib/operation"
-import { importConfigFile, configType, importOverridesFile } from "./lib/importConfig"
-import { deletePathsSecurity, logFunctionErrorResponse } from "./lib/utils"
+import { importConfigFile, MockServerConfig, importOverridesFile } from "./lib/importConfig"
+import { deletePathsSecurity, FunctionResponse, logFunctionErrorResponse } from "./lib/utils"
 import { ExpressConfig } from "./types/expressConfig"
 import { JsfConfig } from "./types/jsfConfig"
 import { CorsConfig } from "./types/corsConfig"
+import { MockOverrides } from "./types/mockOverrides"
 
 const debug = Debug("mock")
 
-const cliInputs = {
-  express: {
-    port: argv.port,
-    openapi: argv.openapi,
-    validateRequests: argv["express.validateRequests"],
-    validateResponses: argv["express.validateResponses"],
-    unknownFormats: argv["express.unknownFormats"]
-  },
-  jsf: {
-    fillProperties: argv["jsf.fillProperties"],
-    useExamplesValue: argv["jsf.useExamplesValue"],
-    useDefaultValue: argv["jsf.useDefaultValue"],
-    failOnInvalidFormat: argv["jsf.failOnInvalidFormat"]
-  },
-  cors: {
-    origin: argv["cors.origin"],
-    credentials: argv["cors.credentials"]
-  }
-}
+const updateServerConfig = (serverConfig: MockServerConfig, newServerConfig: MockServerConfig): void => {
+  Object.entries(newServerConfig).forEach(([key, value]: [string, ExpressConfig | JsfConfig | CorsConfig | undefined]) => {
+    if (!value) {
+      return
+    }
 
-const updateServerConfig = (serverConfig: configType, newServerConfig: configType): void => {
-  Object.entries(newServerConfig).forEach(([key, value]: [string, ExpressConfig | JsfConfig | CorsConfig]) => {
     const noUndefinedKeys = Object.fromEntries(Object.entries(value)
       // eslint-disable-next-line no-unused-vars
       .filter(([key, value]) => value !== undefined))
 
-    serverConfig[key as keyof configType] = {
-      ...serverConfig[key as keyof configType],
+    serverConfig[key as keyof MockServerConfig] = {
+      ...serverConfig[key as keyof MockServerConfig],
       ...noUndefinedKeys
     }
   })
 }
 
+export type MockServerProps = {
+  mockConfigPath?: string
+  mockOverridesPath?: string
+  mockServerConfig?: MockServerConfig
+  mockOverrides?: MockOverrides
+}
 
-void (async(): Promise<void> => {
+const MockServer = async({ mockConfigPath, mockOverridesPath, mockServerConfig, mockOverrides }: MockServerProps): Promise<void> => {
 
-  const serverConfig: configType = {
+  const serverConfig: MockServerConfig = {
     express: {
       port: 8080,
       validateRequests: false,
@@ -80,7 +67,7 @@ void (async(): Promise<void> => {
     }
   }
 
-  const configFile = await importConfigFile({ filePath: argv["mock-config"] as string | undefined })
+  const configFile = await importConfigFile({ filePath: mockConfigPath })
 
   if (configFile.type === "error") {
     logFunctionErrorResponse(configFile)
@@ -91,9 +78,16 @@ void (async(): Promise<void> => {
     updateServerConfig(serverConfig, configFile.data)
   }
 
-  updateServerConfig(serverConfig, cliInputs)
+  if (mockServerConfig) {
+    updateServerConfig(serverConfig, mockServerConfig)
+  }
 
-  const overridesFile = await importOverridesFile({ filePath: argv["mock-overrides"] as string | undefined })
+  const overridesFile = mockOverrides ?
+    {
+      type: "data",
+      data: mockOverrides
+    } as FunctionResponse<MockOverrides> :
+    await importOverridesFile({ filePath: mockOverridesPath })
 
   if (overridesFile.type === "error") {
     logFunctionErrorResponse(overridesFile)
@@ -107,12 +101,14 @@ void (async(): Promise<void> => {
     express: {
       port,
       openapi
-    },
+    } = {},
     jsf: jsfConfig,
     cors: corsOptions } = serverConfig
 
-  delete expressMiddlewareConfig.port
-  delete expressMiddlewareConfig.openapi
+  if (expressMiddlewareConfig) {
+    delete expressMiddlewareConfig.port
+    delete expressMiddlewareConfig.openapi
+  }
 
   if (!openapi) {
     logFunctionErrorResponse({
@@ -187,13 +183,20 @@ void (async(): Promise<void> => {
 
   app.listen(port, () => console.info(`Listening on port: ${port}`))
 
-})()
-  .catch((err: Error) => {
-    logFunctionErrorResponse({
-      type: "error",
-      title: "Unexpected error",
-      messages: [err.message],
-      hints: ["This error seems to be an bug, please open an Issue on Github | https://github.com/soluzionifutura/openapi-mock-server/issues"],
-      docs: "https://github.com/soluzionifutura/openapi-mock-server#openapi-mock-server"
+}
+
+const MockServerWrap = (args: MockServerProps): Promise<void> =>
+  MockServer(args)
+    .catch((err: Error) => {
+      logFunctionErrorResponse({
+        type: "error",
+        title: "Unexpected error",
+        messages: [err.message],
+        hints: ["This error seems to be an bug, please open an Issue on Github | https://github.com/soluzionifutura/openapi-mock-server/issues"],
+        docs: "https://github.com/soluzionifutura/openapi-mock-server#openapi-mock-server"
+      })
     })
-  })
+
+
+MockServerWrap.default = MockServerWrap
+export default MockServerWrap
