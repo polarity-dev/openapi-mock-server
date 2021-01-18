@@ -232,6 +232,43 @@ mock --mock-overrides "./path/to/mock/folder/*.json"
 ```
 
 **Remember to wrap the pattern with `"`**
+
+## With NodeJS or TypeScript
+
+It's possible to launch the mock server via a JS or TS script. It's an awesome way when you want to generate mock-overrides via scripts.
+
+The `MockServer` function exported accepts an object with 4 properties:
+
+- `mockConfigPath?: string` path to [mock-config file](#mock-server-config-file)
+- `mockOverridesPath?: string` path to [mock-overrides file](#mock-server-overrides-config-file)
+- `mockServerConfig?: MockServerConfigType` [mock-config object](#mock-server-config-file), if provided will overwrite default and *mockConfigPath* values
+- `mockOverrides?: MockOverrides` [mock-overrides object](#mock-server-overrides-config-file), if provided it will be used and **any other files will be ignored**
+
+**NOTE:** the MockServer will still try to require the defaults files if no path is provided ([mock-config file](#mock-server-config-file), [mock-overrides file](#mock-server-overrides-config-file)).
+
+```ts
+// example
+
+const MockServer = require("@soluzioni-futura/openapi-mock-server")
+
+const options = {
+  mockConfigPath: "...",
+  mockOverridesPath: "...",
+  mockServerConfig: {
+    express: {
+      openapi: "..."
+    }
+  },
+  mockOverrides: {
+    routes: [
+        ...
+    ]
+  }
+}
+
+MockServer(options)
+```
+
 ## Developer instructions
 
 In order to work with this project you need:
