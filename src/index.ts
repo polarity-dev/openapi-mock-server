@@ -172,6 +172,7 @@ const MockServer = async({ mockConfigPath, mockOverridesPath, mockServerConfig, 
   app.use(
     middleware({
       apiSpec,
+      validateApiDoc: false,
       ...expressMiddlewareConfig,
       operationHandlers: {
         basePath: "",
