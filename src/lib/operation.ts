@@ -148,9 +148,7 @@ const getPathOverrides = ({ overridesFile, requestMethod, expressRoute }: { over
     sensitive: false,
     strict: false,
     end: false
-  })
-
-  pathMatch(expressRoute)
+  })(expressRoute)
 
   requestMethod = requestMethod.toLocaleLowerCase()
 
