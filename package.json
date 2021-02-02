@@ -1,6 +1,6 @@
 {
   "name": "@soluzioni-futura/openapi-mock-server",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "OpenAPI Mock Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
